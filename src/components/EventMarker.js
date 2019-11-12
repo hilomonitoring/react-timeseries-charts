@@ -19,12 +19,12 @@ import Label from "./Label";
 import ValueList from "./ValueList";
 
 const EventTime = ({ time, format = "%m/%d/%y %X" }) => {
-    const textStyle = {
-        fontSize: 11,
-        textAnchor: "left",
-        fill: "#bdbdbd",
-        pointerEvents: "none"
-    };
+    // const textStyle = {
+    //     fontSize: 11,
+    //     textAnchor: "left",
+    //     fill: "#bdbdbd",
+    //     pointerEvents: "none"
+    // };
 
     let text;
     if (_.isFunction(format)) {
@@ -35,7 +35,7 @@ const EventTime = ({ time, format = "%m/%d/%y %X" }) => {
     }
 
     return (
-        <text x={0} y={0} dy="1.2em" style={textStyle}>
+        <text x={0} y={0} dy="1.2em" className="event-time-text">
             {text}
         </text>
     );
@@ -205,7 +205,7 @@ export default class EventMarker extends React.Component {
 
         if (info) {
             if (_.isString(this.props.info)) {
-                infoBox = <Label {...infoBoxProps} label={info} />;
+                infoBox = <Label {...infoBoxProps} label={info} className="info-box" />;
             } else {
                 infoBox = <ValueList {...infoBoxProps} values={info} />;
             }
@@ -351,8 +351,8 @@ export default class EventMarker extends React.Component {
                     {verticalStem}
                     {horizontalStem}
                     {dot}
-                    <g transform={`translate(0,${infoOffsetY - 20})`}>{this.renderTime(event)}</g>
                     <g transform={`translate(0,${infoOffsetY})`}>{infoBox}</g>
+                    <g transform={`translate(10,${infoOffsetY + 25})`}>{this.renderTime(event)}</g>
                 </g>
             );
         }
