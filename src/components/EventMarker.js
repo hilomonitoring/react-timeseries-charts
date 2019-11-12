@@ -149,6 +149,45 @@ EventIndex.propTypes = {
  * override either the x or y position by a number of pixels.
  */
 export default class EventMarker extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            infoBoxDirection: "left"
+        };
+    }
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        if (this.props.event !== nextProps.event) {
+            this.setInfoBoxDirection(nextProps);
+        }
+    }
+
+    setInfoBoxDirection(props) {
+        const { event, offsetX, timeScale, infoWidth, width } = props;
+        if (!event) return;
+
+        let t = this.getT(event);
+
+        const posx = timeScale(t) + offsetX;
+        if (posx < 10 + infoWidth && this.state.infoBoxDirection !== "right")
+            this.setState({ infoBoxDirection: "right" });
+        else if (posx + 10 + infoWidth > width && this.state.infoBoxDirection !== "left")
+            this.setState({ infoBoxDirection: "left" });
+    }
+
+    getT(event) {
+        let t;
+        if (event instanceof TimeEvent) {
+            t = event.timestamp();
+        } else {
+            t = new Date(
+                event.begin().getTime() + (event.end().getTime() - event.begin().getTime()) / 2
+            );
+        }
+        return t;
+    }
+
     renderTime(event) {
         if (event instanceof TimeEvent) {
             return <EventTime time={event.timestamp()} format={this.props.infoTimeFormat} />;
@@ -163,14 +202,7 @@ export default class EventMarker extends React.Component {
     }
 
     renderMarker(event, column, info) {
-        let t;
-        if (event instanceof TimeEvent) {
-            t = event.timestamp();
-        } else {
-            t = new Date(
-                event.begin().getTime() + (event.end().getTime() - event.begin().getTime()) / 2
-            );
-        }
+        let t = this.getT(event);
 
         let value;
         if (this.props.yValueFunc) {
@@ -278,7 +310,8 @@ export default class EventMarker extends React.Component {
                 </g>
             );
         } else {
-            if (posx + 10 + w < (this.props.width * 3) / 4) {
+            // right
+            if (this.state.infoBoxDirection === "right") {
                 if (info) {
                     verticalStem = (
                         <line
@@ -311,6 +344,7 @@ export default class EventMarker extends React.Component {
                     />
                 );
                 transform = `translate(${posx + 10},${10})`;
+                // left
             } else {
                 if (info) {
                     verticalStem = (
